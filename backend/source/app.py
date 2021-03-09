@@ -8,7 +8,7 @@ mongo = PyMongo(app)
 
 db = mongo.db.users
 
-
+CORS(app)
 
 @app.route('/users', methods=['POST'])
 def create_user():
@@ -42,13 +42,21 @@ def get_user(id):
         'password': user['password']
     })
 
-@app.route('/users/<id>', methods=['GET'])
-def delete_user():
-    return "Recebido"
+@app.route('/users/<id>', methods=['DELETE'])
+def delete_user(id):
+    db.delete_one({'_id': ObjectId(id)})
+    return jsonify({'msg': 'Usuario deletado'})
 
-@app.route('/users', methods=['PUT'])
-def update_user():
-    return "Recebido"
+@app.route('/users/<id>', methods=['PUT'])
+def update_user(id):
+    print(id)
+    print(request.json)
+    db.update_one({'_id': ObjectId(id)}, {'$set': {
+        'name': request.json['name'],
+        'email': request.json['email'],
+        'password': request.json['password']
+    }})
+    return jsonify({'msg': 'Usuario atualizado'})
 
 
 if __name__ == "__main__":
